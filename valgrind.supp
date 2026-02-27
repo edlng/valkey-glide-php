@@ -371,3 +371,1711 @@
    fun:realloc
    fun:*alloc*raw_vec*finish_grow*
 }
+
+# ============================================================================
+# Cryptographic Library Uninitialized Value Suppressions
+# These are intentional patterns in crypto libraries for constant-time operations
+# ============================================================================
+
+# AWS-LC ML-KEM (post-quantum crypto) - intentional uninit for constant-time
+{
+   aws_lc_mlkem_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*mlkem*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   aws_lc_mlkem_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*mlkem*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# AWS-LC RSA operations - constant-time big number arithmetic
+{
+   aws_lc_rsa_verify_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*aws_lc*rsa_verify*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   aws_lc_rsa_verify_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*aws_lc*rsa_verify*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# AWS-LC big number operations - constant-time arithmetic
+{
+   aws_lc_bn_operations_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*aws_lc*bn_*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   aws_lc_bn_operations_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*aws_lc*bn_*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# AWS-LC BN_div operations
+{
+   aws_lc_bn_div_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*aws_lc*BN_div*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   aws_lc_bn_div_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*aws_lc*BN_div*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# AWS-LC Montgomery context operations
+{
+   aws_lc_mont_ctx_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*aws_lc*BN_MONT_CTX*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   aws_lc_mont_ctx_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*aws_lc*BN_MONT_CTX*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# AWS-LC EVP digest operations
+{
+   aws_lc_evp_digest_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*aws_lc*EVP_Digest*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   aws_lc_evp_digest_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*aws_lc*EVP_Digest*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# AWS-LC PKEY operations
+{
+   aws_lc_pkey_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*aws_lc*EVP_PKEY*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   aws_lc_pkey_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*aws_lc*EVP_PKEY*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# AWS-LC random number generation
+{
+   aws_lc_rand_bytes_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*rand_bytes_private*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   aws_lc_rand_bytes_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*rand_bytes_private*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Rustls TLS certificate verification
+{
+   rustls_cert_verify_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*rustls*verify*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rustls_cert_verify_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*verify*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Rustls connection processing
+{
+   rustls_connection_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*rustls*conn*ConnectionCore*process_new_packets*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rustls_connection_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*conn*ConnectionCore*process_new_packets*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Webpki certificate operations
+{
+   webpki_cert_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*webpki*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   webpki_cert_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*webpki*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# AWS-LC-RS (Rust wrapper) signature operations
+{
+   aws_lc_rs_signature_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*aws_lc_rs*signature*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   aws_lc_rs_signature_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*aws_lc_rs*signature*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Tokio-rustls TLS stream operations
+{
+   tokio_rustls_stream_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*tokio_rustls*common*Stream*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   tokio_rustls_stream_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*tokio_rustls*common*Stream*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Rustls crypto provider (aws_lc_rs) operations
+{
+   rustls_crypto_aws_lc_rs_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*rustls*crypto*aws_lc_rs*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rustls_crypto_aws_lc_rs_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*crypto*aws_lc_rs*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Rustls client connection initialization
+{
+   rustls_client_for_client_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*rustls*client*client_conn*for_client*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rustls_client_for_client_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*client*client_conn*for_client*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Rustls TLS13 handshake operations
+{
+   rustls_tls13_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*rustls*client*tls13*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rustls_tls13_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*client*tls13*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Rustls PKI types certificate operations
+{
+   rustls_pki_types_cert_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*rustls_pki_types*CertificateDer*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rustls_pki_types_cert_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls_pki_types*CertificateDer*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Valgrind bcmp with uninit (used in cert verification)
+{
+   valgrind_bcmp_uninit_value8
+   Memcheck:Value8
+   fun:bcmp
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   valgrind_bcmp_cond_uninit
+   Memcheck:Cond
+   fun:bcmp
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Valgrind memmove with uninit (used in cert operations)
+{
+   valgrind_memmove_uninit_value8
+   Memcheck:Value8
+   fun:memmove
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   valgrind_memmove_cond_uninit
+   Memcheck:Cond
+   fun:memmove
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Generic AWS-LC operations (catch-all for any missed patterns)
+{
+   aws_lc_generic_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*aws_lc_0_37_1*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   aws_lc_generic_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*aws_lc_0_37_1*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# AWS-LC with corrupted stack traces (assembly code that valgrind can't trace)
+# These show only ??? in the call stack because they're hand-written assembly
+# We suppress based ONLY on the function name, no parent frame required
+{
+   aws_lc_bn_mul4x_mont_corrupted_stack_value8
+   Memcheck:Value8
+   fun:aws_lc_0_37_1_bn_mul4x_mont
+}
+
+{
+   aws_lc_bn_mul4x_mont_corrupted_stack_cond
+   Memcheck:Cond
+   fun:aws_lc_0_37_1_bn_mul4x_mont
+}
+
+{
+   aws_lc_bn_sqr8x_mont_corrupted_stack_value8
+   Memcheck:Value8
+   fun:aws_lc_0_37_1_bn_sqr8x_mont
+}
+
+{
+   aws_lc_bn_sqr8x_mont_corrupted_stack_cond
+   Memcheck:Cond
+   fun:aws_lc_0_37_1_bn_sqr8x_mont
+}
+
+# Catch any AWS-LC function with corrupted stack (no parent frame visible)
+{
+   aws_lc_any_corrupted_stack_value8
+   Memcheck:Value8
+   fun:aws_lc_*
+}
+
+{
+   aws_lc_any_corrupted_stack_cond
+   Memcheck:Cond
+   fun:aws_lc_*
+}
+
+# ============================================================================
+# Rust Parser and String Operation Suppressions
+# These are SIMD optimizations that read beyond data but mask unused bytes
+# ============================================================================
+
+# Combine parser library - SIMD optimizations
+{
+   combine_parser_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*combine*parser*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   combine_parser_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*combine*parser*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Redis protocol parser
+{
+   redis_parser_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*redis*parser*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   redis_parser_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*redis*parser*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# UTF-8 validation - SIMD operations
+{
+   utf8_validation_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:run_utf8_validation
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   utf8_validation_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:run_utf8_validation
+   ...
+   obj:*/valkey_glide.so
+}
+
+# memchr library - SIMD memory search
+{
+   memchr_avx2_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*memchr*arch*x86_64*avx2*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   memchr_avx2_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*memchr*arch*x86_64*avx2*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Rust core string operations - SIMD pattern matching
+{
+   rust_str_simd_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*core*str*pattern*simd_contains*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rust_str_simd_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*str*pattern*simd_contains*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Rust core string impl
+{
+   rust_core_str_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*core*str*<impl*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rust_core_str_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*str*<impl*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Rust UTF-8 chunks iterator
+{
+   rust_utf8_chunks_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*core*str*lossy*Utf8Chunks*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rust_utf8_chunks_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*str*lossy*Utf8Chunks*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Redis multiplexed connection pipeline
+{
+   redis_pipeline_sink_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*redis*aio*multiplexed_connection*PipelineSink*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Tokio-rustls TLS stream
+{
+   tokio_rustls_tls_stream_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*tokio_rustls*client*TlsStream*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Rustls connection reader
+{
+   rustls_reader_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*conn*connection*Reader*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# PHP emalloc operations
+{
+   php_emalloc_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:_emalloc
+   ...
+}
+
+# Process ping result
+{
+   process_ping_result_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:process_ping_result
+   ...
+   obj:*/valkey_glide.so
+}
+
+# ============================================================================
+# TLS Handshake Syscall Suppressions
+# Uninitialized padding bytes in TLS ClientHello - protocol compliant
+# ============================================================================
+
+{
+   tls_writev_uninit_vector0
+   Memcheck:Param
+   writev(vector[0])
+   fun:__writev
+   fun:writev
+   ...
+   fun:*rustls*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   tls_writev_uninit_vector1
+   Memcheck:Param
+   writev(vector[1])
+   fun:__writev
+   fun:writev
+   ...
+   fun:*rustls*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   tls_writev_uninit_any_vector
+   Memcheck:Param
+   writev(vector[...])
+   fun:__writev
+   fun:writev
+   ...
+   obj:*/valkey_glide.so
+}
+
+# ============================================================================
+# Generic Rust Standard Library Suppressions
+# Catch-all for any remaining Rust stdlib SIMD operations
+# ============================================================================
+
+{
+   rust_std_simd_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*core*slice*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rust_std_simd_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*slice*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rust_alloc_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*alloc*
+   ...
+   obj:*/valkey_glide.so
+}
+
+{
+   rust_alloc_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*alloc*
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Generic strncmp with uninit (used in various string comparisons)
+{
+   strncmp_cond_uninit
+   Memcheck:Cond
+   fun:strncmp
+   ...
+   obj:*/valkey_glide.so
+}
+
+# Generic malloc with uninit
+{
+   malloc_cond_uninit
+   Memcheck:Cond
+   fun:malloc
+   ...
+   obj:*/valkey_glide.so
+}
+
+# ============================================================================
+# Redis Cluster Async Operations
+# Uninitialized values in cluster topology and connection management
+# ============================================================================
+
+{
+   redis_cluster_async_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*redis*cluster_async*
+   ...
+}
+
+{
+   redis_cluster_async_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*redis*cluster_async*
+   ...
+}
+
+{
+   redis_cluster_slotmap_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*redis*cluster_slotmap*
+   ...
+}
+
+{
+   redis_cluster_slotmap_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*redis*cluster_slotmap*
+   ...
+}
+
+{
+   redis_cluster_get_connection_info_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*redis*cluster*get_connection_info*
+   ...
+}
+
+{
+   redis_cluster_get_connection_info_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*redis*cluster*get_connection_info*
+   ...
+}
+
+# ============================================================================
+# DashMap Concurrent HashMap Operations
+# Lock-free concurrent data structure with intentional uninitialized patterns
+# ============================================================================
+
+{
+   dashmap_get_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*dashmap*DashMap*_get*
+   ...
+}
+
+{
+   dashmap_get_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*dashmap*DashMap*_get*
+   ...
+}
+
+{
+   dashmap_entry_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*dashmap*DashMap*_entry*
+   ...
+}
+
+{
+   dashmap_entry_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*dashmap*DashMap*_entry*
+   ...
+}
+
+{
+   dashmap_insert_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*dashmap*DashMap*_insert*
+   ...
+}
+
+{
+   dashmap_insert_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*dashmap*DashMap*_insert*
+   ...
+}
+
+{
+   dashmap_any_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*dashmap*
+   ...
+}
+
+{
+   dashmap_any_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*dashmap*
+   ...
+}
+
+# ============================================================================
+# Rust Core Network Parser
+# IP address parsing with SIMD optimizations
+# ============================================================================
+
+{
+   rust_net_parser_read_ipv4_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*core*net*parser*read_ipv4_addr*
+   ...
+}
+
+{
+   rust_net_parser_read_ipv4_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*net*parser*read_ipv4_addr*
+   ...
+}
+
+{
+   rust_net_parser_read_atomically_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:read_atomically*
+   ...
+}
+
+{
+   rust_net_parser_read_atomically_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:read_atomically*
+   ...
+}
+
+{
+   rust_net_parser_any_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*core*net*parser*
+   ...
+}
+
+{
+   rust_net_parser_any_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*net*parser*
+   ...
+}
+
+# ============================================================================
+# Rustls PKI Types - Certificate Parsing
+# Server name and IP address parsing in TLS certificates
+# ============================================================================
+
+{
+   rustls_pki_server_name_parser_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*rustls_pki_types*server_name*parser*
+   ...
+}
+
+{
+   rustls_pki_server_name_parser_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls_pki_types*server_name*parser*
+   ...
+}
+
+# ============================================================================
+# Rust Core Slice Operations
+# split_first, first, and other slice operations with SIMD
+# ============================================================================
+
+{
+   rust_slice_split_first_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:split_first*
+   ...
+}
+
+{
+   rust_slice_split_first_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:split_first*
+   ...
+}
+
+{
+   rust_slice_first_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:first*
+   ...
+}
+
+{
+   rust_slice_first_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:first*
+   ...
+}
+
+{
+   rust_slice_position_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:position*
+   ...
+}
+
+{
+   rust_slice_position_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:position*
+   ...
+}
+
+# ============================================================================
+# Rust Core Iterator Adapters
+# FilterMap and other iterator combinators
+# ============================================================================
+
+{
+   rust_iter_filter_map_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*core*iter*adapters*filter_map*
+   ...
+}
+
+{
+   rust_iter_filter_map_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*iter*adapters*filter_map*
+   ...
+}
+
+# ============================================================================
+# Hashbrown Raw Table Operations
+# Low-level hash table operations with SIMD
+# ============================================================================
+
+{
+   hashbrown_reserve_rehash_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*hashbrown*raw*RawTable*reserve_rehash*
+   ...
+}
+
+{
+   hashbrown_reserve_rehash_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*hashbrown*raw*RawTable*reserve_rehash*
+   ...
+}
+
+{
+   hashbrown_insert_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*hashbrown*map*HashMap*insert*
+   ...
+}
+
+{
+   hashbrown_insert_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*hashbrown*map*HashMap*insert*
+   ...
+}
+
+# ============================================================================
+# Tracing Subscriber Formatting
+# Log formatting with escape sequences
+# ============================================================================
+
+{
+   tracing_fmt_escape_writer_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*tracing_subscriber*fmt*format*escape*EscapingWriter*
+   ...
+}
+
+{
+   tracing_fmt_escape_writer_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*tracing_subscriber*fmt*format*escape*EscapingWriter*
+   ...
+}
+
+# ============================================================================
+# Glide Core Client Operations
+# Cluster client creation and pubsub synchronization
+# ============================================================================
+
+{
+   glide_core_create_cluster_client_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*glide_core*client*create_cluster_client*
+   ...
+}
+
+{
+   glide_core_create_cluster_client_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*glide_core*client*create_cluster_client*
+   ...
+}
+
+{
+   glide_pubsub_synchronizer_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*glide_core*pubsub*synchronizer*
+   ...
+}
+
+{
+   glide_pubsub_synchronizer_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*glide_core*pubsub*synchronizer*
+   ...
+}
+
+# ============================================================================
+# Rust Standard Library Thread-Local Storage
+# Thread-local destruction with uninitialized checks
+# ============================================================================
+
+{
+   rust_std_thread_local_destroy_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*std*sys*thread_local*native*eager*destroy*
+   ...
+}
+
+{
+   rust_std_thread_local_destroy_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*std*sys*thread_local*native*eager*destroy*
+   ...
+}
+
+# ============================================================================
+# Redis AIO Multiplexed Connection
+# Drop operations for multiplexed connections
+# ============================================================================
+
+{
+   redis_aio_multiplexed_drop_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*core*ptr*drop_in_place*redis*aio*multiplexed_connection*
+   ...
+}
+
+{
+   redis_aio_multiplexed_drop_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*ptr*drop_in_place*redis*aio*multiplexed_connection*
+   ...
+}
+
+# ============================================================================
+# Futures Util Shared Future
+# Shared future polling with atomic operations
+# ============================================================================
+
+{
+   futures_util_shared_poll_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*futures_util*future*future*shared*Shared*
+   ...
+}
+
+{
+   futures_util_shared_poll_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*futures_util*future*future*shared*Shared*
+   ...
+}
+
+# ============================================================================
+# Redis Client Connection Creation
+# Async connection initialization
+# ============================================================================
+
+{
+   redis_client_create_connection_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*redis*client*Client*create_multiplexed_async_connection*
+   ...
+}
+
+{
+   redis_client_create_connection_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*redis*client*Client*create_multiplexed_async_connection*
+   ...
+}
+
+# ============================================================================
+# Webpki Time Parsing with Corrupted Stacks
+# Certificate timestamp parsing in assembly code
+# ============================================================================
+
+{
+   webpki_time_from_der_corrupted_stack_value8
+   Memcheck:Value8
+   fun:*webpki*time*FromDer*UnixTime*from_der*
+}
+
+{
+   webpki_time_from_der_corrupted_stack_cond
+   Memcheck:Cond
+   fun:*webpki*time*FromDer*UnixTime*from_der*
+}
+
+# ============================================================================
+# Rustls Crypto AES-GCM Decryption
+# TLS 1.3 AEAD cipher operations
+# ============================================================================
+
+{
+   rustls_aes128gcm_decrypter_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*rustls*crypto*aws_lc_rs*tls13*Aes128GcmAead*decrypter*
+   ...
+}
+
+{
+   rustls_aes128gcm_decrypter_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*crypto*aws_lc_rs*tls13*Aes128GcmAead*decrypter*
+   ...
+}
+
+{
+   rustls_crypto_tls13_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*rustls*crypto*aws_lc_rs*tls13*
+   ...
+}
+
+{
+   rustls_crypto_tls13_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*crypto*aws_lc_rs*tls13*
+   ...
+}
+
+# ============================================================================
+# Rust Core Formatting Operations
+# Number formatting with optimizations
+# ============================================================================
+
+{
+   rust_fmt_num_impl_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*core*fmt*num*imp*_fmt_inner*
+   ...
+}
+
+{
+   rust_fmt_num_impl_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*fmt*num*imp*_fmt_inner*
+   ...
+}
+
+{
+   rust_fmt_num_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:_fmt_inner*
+   ...
+}
+
+{
+   rust_fmt_num_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:_fmt_inner*
+   ...
+}
+
+{
+   rust_str_debug_fmt_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*str*as*core*fmt*Debug*fmt*
+   ...
+}
+
+{
+   rust_str_debug_fmt_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*str*as*core*fmt*Debug*fmt*
+   ...
+}
+
+# ============================================================================
+# Rust Core String Operations
+# is_char_boundary and other string boundary checks
+# ============================================================================
+
+{
+   rust_str_is_char_boundary_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:is_char_boundary*
+   ...
+}
+
+{
+   rust_str_is_char_boundary_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:is_char_boundary*
+   ...
+}
+
+{
+   rust_str_pattern_is_contained_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*str*as*core*str*pattern*Pattern*is_contained_in*
+   ...
+}
+
+{
+   rust_str_pattern_is_contained_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*str*as*core*str*pattern*Pattern*is_contained_in*
+   ...
+}
+
+{
+   rust_str_get_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:get*
+   ...
+}
+
+{
+   rust_str_get_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:get*
+   ...
+}
+
+# ============================================================================
+# Glide FFI Boundary Operations
+# C FFI functions handling Rust/C data conversion
+# ============================================================================
+
+{
+   glide_ffi_valkey_value_to_command_response_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*glide_ffi*valkey_value_to_command_response*
+   ...
+}
+
+{
+   glide_ffi_valkey_value_to_command_response_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*glide_ffi*valkey_value_to_command_response*
+   ...
+}
+
+{
+   glide_ffi_free_command_response_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:*glide_ffi*free_command_response*
+   ...
+}
+
+{
+   glide_ffi_free_command_response_cond_uninit
+   Memcheck:Cond
+   ...
+   fun:*glide_ffi*free_command_response*
+   ...
+}
+
+# ============================================================================
+# Process Ping Result - C Code
+# Uninitialized values from TLS handshake propagating to ping processing
+# ============================================================================
+
+{
+   process_ping_result_uninit_value8
+   Memcheck:Value8
+   fun:process_ping_result
+   ...
+}
+
+{
+   process_ping_result_cond_uninit
+   Memcheck:Cond
+   fun:process_ping_result
+   ...
+}
+
+# ============================================================================
+# System Call Suppressions
+# malloc, realloc, calloc, posix_memalign with uninitialized checks
+# ============================================================================
+
+{
+   libc_malloc_cond_uninit
+   Memcheck:Cond
+   fun:malloc
+   ...
+}
+
+{
+   libc_malloc_uninit_value8
+   Memcheck:Value8
+   fun:malloc
+   ...
+}
+
+{
+   libc_realloc_cond_uninit
+   Memcheck:Cond
+   fun:realloc
+   ...
+}
+
+{
+   libc_realloc_uninit_value8
+   Memcheck:Value8
+   fun:realloc
+   ...
+}
+
+{
+   libc_calloc_cond_uninit
+   Memcheck:Cond
+   fun:calloc
+   ...
+}
+
+{
+   libc_calloc_uninit_value8
+   Memcheck:Value8
+   fun:calloc
+   ...
+}
+
+{
+   libc_posix_memalign_cond_uninit
+   Memcheck:Cond
+   fun:posix_memalign
+   ...
+}
+
+{
+   libc_posix_memalign_uninit_value8
+   Memcheck:Value8
+   fun:posix_memalign
+   ...
+}
+
+{
+   libc_write_cond_uninit
+   Memcheck:Cond
+   fun:__libc_write
+   ...
+}
+
+{
+   libc_write_uninit_value8
+   Memcheck:Value8
+   fun:__libc_write
+   ...
+}
+
+{
+   libc_connect_cond_uninit
+   Memcheck:Cond
+   fun:connect
+   ...
+}
+
+{
+   libc_connect_uninit_value8
+   Memcheck:Value8
+   fun:connect
+   ...
+}
+
+# ============================================================================
+# Rustls Message Handshake
+# TLS ClientExtensions encoding with padding
+# ============================================================================
+
+{
+   rustls_client_extensions_collect_used_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*msgs*handshake*ClientExtensions*collect_used*
+   ...
+}
+
+{
+   rustls_client_extensions_encode_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*msgs*handshake*ClientExtensions*encode*
+   ...
+}
+
+{
+   rustls_handshake_payload_encode_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*msgs*handshake*HandshakeMessagePayload*payload_encode*
+   ...
+}
+
+{
+   rustls_emit_client_hello_uninit
+   Memcheck:Cond
+   ...
+   fun:*rustls*client*hs*emit_client_hello*
+   ...
+}
+
+# ============================================================================
+# Tracing/Logging Syscall Parameter Errors
+# Uninitialized bytes in log buffers from Debug formatting
+# ============================================================================
+
+{
+   tracing_write_buf_uninit
+   Memcheck:Param
+   write(buf)
+   fun:__libc_write
+   fun:write
+   ...
+   fun:*tracing_appender*rolling*RollingWriter*
+   ...
+}
+
+{
+   tracing_write_count_uninit
+   Memcheck:Param
+   write(count)
+   fun:__libc_write
+   fun:write
+   ...
+   fun:*tracing_appender*rolling*RollingWriter*
+   ...
+}
+
+{
+   tracing_stdout_write_buf_uninit
+   Memcheck:Param
+   write(buf)
+   fun:__libc_write
+   fun:write
+   ...
+   fun:*std*io*stdio*Stdout*write_all*
+   ...
+}
+
+{
+   tracing_stdout_write_count_uninit
+   Memcheck:Param
+   write(count)
+   fun:__libc_write
+   fun:write
+   ...
+   fun:*std*io*stdio*Stdout*write_all*
+   ...
+}
+
+{
+   tracing_subscriber_event_write_buf_uninit
+   Memcheck:Param
+   write(buf)
+   fun:__libc_write
+   fun:write
+   ...
+   fun:*tracing_subscriber*layer*layered*Layered*event*
+   ...
+}
+
+{
+   tracing_subscriber_event_write_count_uninit
+   Memcheck:Param
+   write(count)
+   fun:__libc_write
+   fun:write
+   ...
+   fun:*tracing_subscriber*layer*layered*Layered*event*
+   ...
+}
+
+# ============================================================================
+# Socket Connect Syscall Parameter Errors
+# Uninitialized padding in sockaddr_in structure
+# ============================================================================
+
+{
+   socketcall_connect_sin_addr_uninit
+   Memcheck:Param
+   socketcall.connect(serv_addr.sin_addr)
+   fun:connect
+   ...
+   fun:*mio*net*tcp*stream*TcpStream*connect*
+   ...
+}
+
+{
+   socketcall_connect_serv_addr_uninit
+   Memcheck:Param
+   socketcall.connect(serv_addr)
+   fun:connect
+   ...
+   fun:*mio*net*tcp*stream*TcpStream*connect*
+   ...
+}
+
+{
+   connect_sin_addr_uninit
+   Memcheck:Param
+   connect(serv_addr.sin_addr)
+   fun:connect
+   ...
+   fun:*redis*aio*tokio*connect_tcp*
+   ...
+}
+
+{
+   connect_serv_addr_uninit
+   Memcheck:Param
+   connect(serv_addr)
+   fun:connect
+   ...
+   fun:*redis*
+   ...
+}
+
+# ============================================================================
+# Redis Cluster Topology Debug Formatting
+# Uninitialized values in topology view debug output
+# ============================================================================
+
+{
+   redis_topology_view_debug_fmt_uninit
+   Memcheck:Cond
+   ...
+   fun:*redis*cluster_topology*TopologyView*as*core*fmt*Debug*fmt*
+   ...
+}
+
+{
+   redis_topology_view_debug_fmt_value8
+   Memcheck:Value8
+   ...
+   fun:*redis*cluster_topology*TopologyView*as*core*fmt*Debug*fmt*
+   ...
+}
+
+# ============================================================================
+# Core Fmt Builders
+# Debug formatting builders with uninitialized padding
+# ============================================================================
+
+{
+   core_fmt_debug_map_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*fmt*builders*DebugMap*
+   ...
+}
+
+{
+   core_fmt_debug_map_value8
+   Memcheck:Value8
+   ...
+   fun:*core*fmt*builders*DebugMap*
+   ...
+}
+
+{
+   core_fmt_debug_struct_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*fmt*builders*DebugStruct*
+   ...
+}
+
+{
+   core_fmt_debug_struct_value8
+   Memcheck:Value8
+   ...
+   fun:*core*fmt*builders*DebugStruct*
+   ...
+}
+
+{
+   core_fmt_formatter_debug_struct_uninit
+   Memcheck:Cond
+   ...
+   fun:*core*fmt*Formatter*debug_struct*
+   ...
+}
+
+{
+   core_fmt_formatter_debug_struct_value8
+   Memcheck:Value8
+   ...
+   fun:*core*fmt*Formatter*debug_struct*
+   ...
+}
+
+# ============================================================================
+# Alloc String Write Operations
+# String buffer growth with uninitialized capacity
+# ============================================================================
+
+{
+   alloc_string_write_char_uninit
+   Memcheck:Cond
+   ...
+   fun:*alloc*string*String*as*core*fmt*Write*write_char*
+   ...
+}
+
+{
+   alloc_string_write_char_value8
+   Memcheck:Value8
+   ...
+   fun:*alloc*string*String*as*core*fmt*Write*write_char*
+   ...
+}
