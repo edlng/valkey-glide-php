@@ -106,9 +106,10 @@ class ValkeyGlideValkeySearchTest extends ValkeyGlideBaseTest
                 stripos($msg, 'ERR unknown') !== false ||
                 stripos($msg, 'module') !== false
             ) {
-                throw new TestSkippedException("Valkey Search module not available.");
+                $this->markTestSkipped("Valkey Search module not available.");
+            } else {
+                $this->markTestSkipped("Something went wrong: " . $e->getMessage());
             }
-            throw new TestSkippedException("Something went wrong: " . $e->getMessage());
         }
     }
 
