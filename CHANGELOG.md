@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changes
+
+* PHP: Add FT.* (Vector Search) commands: ftCreate, ftDropIndex, ftList, ftSearch, ftAggregate, ftInfo, ftAliasAdd, ftAliasDel, ftAliasUpdate, ftAliasList for standalone and cluster clients
+
 ## 1.0.0
 
 ### Changes (1.0.0)
