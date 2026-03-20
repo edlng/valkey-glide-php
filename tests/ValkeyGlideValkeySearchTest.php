@@ -108,6 +108,7 @@ class ValkeyGlideValkeySearchTest extends ValkeyGlideBaseTest
             ) {
                 throw new TestSkippedException("Valkey Search module not available.");
             }
+            throw new TestSkippedException("Something went wrong: " . $e->getMessage());
         }
     }
 
