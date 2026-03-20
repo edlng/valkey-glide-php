@@ -120,7 +120,7 @@ function getTestClass($class)
         'valkeyglideclientbatch' => 'ValkeyGlideBatchTest',
         'valkeyglideclusterbatch' => 'ValkeyGlideClusterBatchTest',
         'updateconnectionpassword' => 'UpdateConnectionPasswordTest',
-        'ValkeyGlideValkeySearch' => 'ValkeyGlideValkeySearchTest'
+        'valkeyglidevalkeySearch' => 'ValkeyGlideValkeySearchTest'
     ];
 
     /* Return early if the class is one of our built-in ones */
@@ -156,7 +156,7 @@ $opt = getopt('', ['host:', 'port:', 'class:', 'test:', 'nocolors', 'user:', 'au
 $default_classes = 'connectionrequest,valkeyglide,valkeyglidecluster,valkeyglideclientfeatures,';
 $default_classes .= 'valkeyglidepubsub,valkeyglideclusterpubsub,valkeyglideclusterfeatures,';
 $default_classes .= 'valkeyglideclientbatch,valkeyglideclusterbatch,updateconnectionpassword,';
-$default_classes .= 'phpredisstyleconnection';
+$default_classes .= 'valkeyglidevalkeySearch,phpredisstyleconnection';
 $classes = getClassArray($opt['class'] ?? $default_classes);
 
 $colorize = !isset($opt['nocolors']);
