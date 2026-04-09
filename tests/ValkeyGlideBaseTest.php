@@ -102,8 +102,19 @@ abstract class ValkeyGlideBaseTest extends TestSuite
         'Cupertino'     => [-122.032182, 37.322998]
     ];
 
-    protected const TLS_ADDRESS_STANDALONE = ['host' => 'localhost', 'port' => 6400];
-    protected const TLS_ADDRESS_CLUSTER    = ['host' => 'localhost', 'port' => 8001];
+    // TLS configuration
+    protected const TLS_PORT_STANDALONE = 6400;
+    protected const TLS_ADDRESS_STANDALONE = [
+        'host' => 'localhost',
+        'port' => self::TLS_PORT_STANDALONE
+    ];
+
+    protected const TLS_PORT_CLUSTER = 8001;
+    protected const TLS_ADDRESS_CLUSTER = [
+        'host' => 'localhost',
+        'port' => self::TLS_PORT_CLUSTER
+    ];
+
     protected const TLS_CERTIFICATE_PATH   = __DIR__ . '/../valkey-glide/utils/tls_crts/ca.crt';
 
     protected function getNilValue()
@@ -260,13 +271,56 @@ abstract class ValkeyGlideBaseTest extends TestSuite
         return defined(get_class($this->valkey_glide) . '::MULTI');
     }
 
+    /**
+     * Asserts that the given client is connected.
+     *
+     * @param ValkeyGlide|ValkeyGlideCluster $client The client instance
+     */
     protected function assertConnected(ValkeyGlide|ValkeyGlideCluster $client)
     {
         $result =
             $client instanceof ValkeyGlideCluster
             ? $client->ping('allPrimaries')
             : $client->ping();
+        // ping() can return either 'PONG' or true depending on the implementation
+        $this->assertTrue($result === 'PONG' || $result === true, "Expected 'PONG' or true, got: " . var_export($result, true));
+    }
 
-        $this->assertTrue($result, "Client should be connected");
+    /**
+     * Marks the current test as skipped if TLS is disabled.
+     */
+    protected function skipIfTlsDisabled(): void
+    {
+        if (!$this->getTLS()) {
+            $this->markTestSkipped('TLS is disabled');
+        }
+    }
+
+    /**
+     * Marks the current test as skipped if TLS is enabled.
+     */
+    protected function skipIfTlsEnabled(): void
+    {
+        if ($this->getTLS()) {
+            $this->markTestSkipped('TLS is enabled');
+        }
+    }
+
+    /**
+     * Loads and returns the CA certificate for TLS tests.
+     */
+    protected function getCaCertificate(): string
+    {
+        return file_get_contents(self::TLS_CERTIFICATE_PATH);
+    }
+
+    /**
+     * Skips the current test if DNS tests are not enabled.
+     */
+    protected function skipIfDnsNotEnabled(): void
+    {
+        if (!getenv('VALKEY_GLIDE_DNS_TESTS_ENABLED')) {
+            $this->markTestSkipped('DNS tests are disabled. Set VALKEY_GLIDE_DNS_TESTS_ENABLED=1 to enable.');
+        }
     }
 }

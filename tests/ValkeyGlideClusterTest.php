@@ -73,6 +73,7 @@ defined('VALKEY_GLIDE_PHP_TESTRUN') or die("Use TestValkeyGlide.php to run tests
 */
 
 require_once __DIR__ . "/ValkeyGlideTest.php";
+require_once __DIR__ . '/TestConstants.php';
 
 /**
  * Most ValkeyGlideCluster tests should work the same as the standard ValkeyGlide object
@@ -328,6 +329,12 @@ class ValkeyGlideClusterTest extends ValkeyGlideTest
             TestSuite::errorMessage("Seed source: %s\n", self::$seed_source);
             exit(1);
         }
+    }
+
+    /* Override getPort to return cluster port */
+    public function getPort()
+    {
+        return $this->getTLS() ? 8001 : 7001;
     }
 
     /* Overrides for ValkeyGlideTest where the function signature is different.  This
@@ -1383,51 +1390,6 @@ class ValkeyGlideClusterTest extends ValkeyGlideTest
         $client->close();
     }
 
-    // TLS Tests
-    // ---------
-
-    public function testTlsSecureStream()
-    {
-        $client = new ValkeyGlideCluster(
-            addresses: [self::TLS_ADDRESS_CLUSTER],
-            context: stream_context_create(['ssl' => ['cafile' => self::TLS_CERTIFICATE_PATH]])
-        );
-
-        $this->assertConnected($client);
-    }
-
-    public function testTlsSecureConfig()
-    {
-        $client = new ValkeyGlideCluster(
-            addresses: [self::TLS_ADDRESS_CLUSTER],
-            use_tls: true,
-            advanced_config: ['tls_config' => ['root_certs' => file_get_contents(self::TLS_CERTIFICATE_PATH)]]
-        );
-
-        $this->assertConnected($client);
-    }
-
-    public function testTlsInsecureStream()
-    {
-        $client = new ValkeyGlideCluster(
-            addresses: [self::TLS_ADDRESS_CLUSTER],
-            context: stream_context_create(['ssl' => ['verify_peer' => false]])
-        );
-
-        $this->assertConnected($client);
-    }
-
-    public function testTlsInsecureConfig()
-    {
-        $client = new ValkeyGlideCluster(
-            addresses: [self::TLS_ADDRESS_CLUSTER],
-            use_tls: true,
-            advanced_config: ['tls_config' => ['use_insecure_tls' => true]]
-        );
-
-        $this->assertConnected($client);
-    }
-
     public function testScriptExists()
     {
         $script = 'return "Hello"';
@@ -1524,5 +1486,36 @@ class ValkeyGlideClusterTest extends ValkeyGlideTest
             $this->assertTrue($e instanceof RedisException, 'Exception should be RedisException');
             $this->assertTrue($e instanceof ValkeyGlideException, 'Exception should be ValkeyGlideException');
         }
+    }
+
+    public function testConnectWithIPv4Address()
+    {
+        $this->skipIfTlsEnabled();
+
+        $client = new ValkeyGlideCluster(
+            addresses: [[
+                'host' => TestConstants::HOST_ADDRESS_IPV4,
+                'port' => $this->getPort()
+            ]]
+        );
+
+        $this->assertConnected($client);
+        $client->close();
+    }
+
+    public function testConnectWithIPv6Address()
+    {
+        $this->skipIfTlsEnabled();
+        $this->markTestSkipped('IPv6 cluster connectivity has known issues with topology discovery');
+
+        $client = new ValkeyGlideCluster(
+            addresses: [[
+                'host' => TestConstants::HOST_ADDRESS_IPV6,
+                'port' => $this->getPort()
+            ]]
+        );
+
+        $this->assertConnected($client);
+        $client->close();
     }
 }

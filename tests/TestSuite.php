@@ -115,6 +115,13 @@ class TestSuite
         $this->tls = $tls;
     }
 
+    /**
+     * Default setUp is a no-op. Subclasses can override to initialize resources.
+     */
+    public function setUp()
+    {
+    }
+
     public function getHost()
     {
         return $this->host;
@@ -823,12 +830,34 @@ class TestSuite
         return false;
     }
 
+    /**
+     * Asserts that executing the given callable throws an exception of the specified type.
+     *
+     * @param string $exceptionClass The expected exception class name
+     * @param callable $callable The function to execute
+     */
+    protected function assertThrows(string $exceptionClass, callable $callable): void
+    {
+        try {
+            $callable();
+            $this->fail('Expected exception of type ' . $exceptionClass . ' was not thrown.');
+        } catch (Exception $e) {
+            if ($e instanceof $exceptionClass) {
+                return;
+            }
+            $this->fail('Expected exception of type ' . $exceptionClass . ' but got ' . get_class($e) . ': ' . $e->getMessage());
+        }
+    }
+
     protected function fail(string $message): bool
     {
         self::$errors [] = $this->assertionTrace("'%s'", $message);
         return false;
     }
 
+    /**
+     * Marks the current test as skipped with an optional message.
+     */
     protected function markTestSkipped(string $msg = '')
     {
         $bt = debug_backtrace(false);
@@ -892,13 +921,15 @@ class TestSuite
         }
 
         if (! $fullname) {
-            die("Fatal:  Couldn't find $filename\n");
+            fwrite(STDERR, "Fatal:  Couldn't find $filename\n");
+            exit(1);
         }
 
         require_once($fullname);
 
         if (! class_exists($class)) {
-            die("Fatal:  Loaded '$filename' but didn't find class '$class'\n");
+            fwrite(STDERR, "Fatal:  Loaded '$filename' but didn't find class '$class'\n");
+            exit(1);
         }
 
         /* Loaded the file and found the class, return it */

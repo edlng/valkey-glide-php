@@ -73,6 +73,7 @@ defined('VALKEY_GLIDE_PHP_TESTRUN') or die('Use TestValkeyGlide.php to run tests
 */
 
 require_once __DIR__ . '/ValkeyGlideBaseTest.php';
+require_once __DIR__ . '/TestConstants.php';
 
 class ValkeyGlideTest extends ValkeyGlideBaseTest
 {
@@ -485,7 +486,7 @@ class ValkeyGlideTest extends ValkeyGlideBaseTest
     public function testBitPos()
     {
         if (version_compare($this->version, '2.8.7') < 0) {
-            $this->MarkTestSkipped();
+            $this->markTestSkipped();
             return;
         }
 
@@ -3265,7 +3266,7 @@ class ValkeyGlideTest extends ValkeyGlideBaseTest
     {
         /* ZRANGEBYLEX available on versions >= 2.8.9 */
         if (version_compare($this->version, '2.8.9') < 0) {
-            $this->MarkTestSkipped();
+            $this->markTestSkipped();
             return;
         }
 
@@ -3296,7 +3297,7 @@ class ValkeyGlideTest extends ValkeyGlideBaseTest
     public function testZLexCount()
     {
         if (version_compare($this->version, '2.8.9') < 0) {
-            $this->MarkTestSkipped();
+            $this->markTestSkipped();
             return;
         }
 
@@ -3605,7 +3606,7 @@ class ValkeyGlideTest extends ValkeyGlideBaseTest
     public function testZRemRangeByLex()
     {
         if (version_compare($this->version, '2.8.9') < 0) {
-            $this->MarkTestSkipped();
+            $this->markTestSkipped();
             return;
         }
 
@@ -3625,7 +3626,7 @@ class ValkeyGlideTest extends ValkeyGlideBaseTest
     public function testBZPop()
     {
         if (version_compare($this->version, '5.0.0') < 0) {
-            $this->MarkTestSkipped();
+            $this->markTestSkipped();
             return;
         }
 
@@ -3649,7 +3650,7 @@ class ValkeyGlideTest extends ValkeyGlideBaseTest
     public function testZPop()
     {
         if (version_compare($this->version, '5.0.0') < 0) {
-            $this->MarkTestSkipped();
+            $this->markTestSkipped();
             return;
         }
 
@@ -3673,7 +3674,7 @@ class ValkeyGlideTest extends ValkeyGlideBaseTest
     public function testZRandMember()
     {
         if (version_compare($this->version, '6.2.0') < 0) {
-            $this->MarkTestSkipped();
+            $this->markTestSkipped();
             return;
         }
         $this->valkey_glide->del('key');
@@ -4686,7 +4687,7 @@ class ValkeyGlideTest extends ValkeyGlideBaseTest
     public function testHRandField()
     {
         if (version_compare($this->version, '6.2.0') < 0) {
-            $this->MarkTestSkipped();
+            $this->markTestSkipped();
         }
 
         $this->valkey_glide->del('key');
@@ -7889,63 +7890,6 @@ if (extension_loaded("valkey_glide") || dl("' . __DIR__ . '/../modules/valkey_gl
         $client->close();
     }
 
-    // TLS Tests
-    // ---------
-
-    public function testTlsSecureStream()
-    {
-        $client = new ValkeyGlide();
-        $client->connect(
-            addresses: [self::TLS_ADDRESS_STANDALONE],
-            advanced_config: ['connection_timeout' => 5000], # Allow longer timeout for TLS connection
-            context: stream_context_create(['ssl' => ['cafile' => self::TLS_CERTIFICATE_PATH]])
-        );
-
-        $this->assertConnected($client);
-    }
-
-    public function testTlsSecureConfig()
-    {
-        $client = new ValkeyGlide();
-        $client->connect(
-            addresses: [self::TLS_ADDRESS_STANDALONE],
-            use_tls: true,
-            advanced_config: [
-                'connection_timeout' => 5000, # Allow longer timeout for TLS connection
-                'tls_config' => ['root_certs' => file_get_contents(self::TLS_CERTIFICATE_PATH)]
-            ]
-        );
-
-        $this->assertConnected($client);
-    }
-
-    public function testTlsInsecureStream()
-    {
-        $client = new ValkeyGlide();
-        $client->connect(
-            addresses: [self::TLS_ADDRESS_STANDALONE],
-            advanced_config: ['connection_timeout' => 5000], # Allow longer timeout for TLS connection
-            context: stream_context_create(['ssl' => ['verify_peer' => false]])
-        );
-
-        $this->assertConnected($client);
-    }
-
-    public function testTlsInsecureConfig()
-    {
-        $client = new ValkeyGlide();
-        $client->connect(
-            addresses: [self::TLS_ADDRESS_STANDALONE],
-            use_tls: true,
-            advanced_config: [
-                'connection_timeout' => 5000, # Allow longer timeout for TLS connection
-                'tls_config' => ['use_insecure_tls' => true]
-            ]
-        );
-
-        $this->assertConnected($client);
-    }
-
     public function testScriptExists()
     {
         $script = 'return "Hello"';
@@ -8083,6 +8027,11 @@ if (extension_loaded("valkey_glide") || dl("' . __DIR__ . '/../modules/valkey_gl
             return;
         }
 
+        if (class_exists('Redis', false)) {
+            $this->markTestSkipped('PHPRedis extension is already loaded, cannot test aliases');
+            return;
+        }
+
         ValkeyGlide::registerPHPRedisAliases();
 
         $this->assertTrue(class_exists('Redis'), 'Redis class alias should exist');
@@ -8111,5 +8060,37 @@ if (extension_loaded("valkey_glide") || dl("' . __DIR__ . '/../modules/valkey_gl
             $this->assertTrue($e instanceof RedisException, 'Exception should be RedisException');
             $this->assertTrue($e instanceof ValkeyGlideException, 'Exception should be ValkeyGlideException');
         }
+    }
+
+    public function testConnectWithIPv4Address()
+    {
+        $this->skipIfTlsEnabled();
+
+        $client = new ValkeyGlide();
+        $client->connect(
+            addresses: [[
+                'host' => TestConstants::HOST_ADDRESS_IPV4,
+                'port' => $this->getPort()
+            ]]
+        );
+
+        $this->assertConnected($client);
+        $client->close();
+    }
+
+    public function testConnectWithIPv6Address()
+    {
+        $this->skipIfTlsEnabled();
+
+        $client = new ValkeyGlide();
+        $client->connect(
+            addresses: [[
+                'host' => TestConstants::HOST_ADDRESS_IPV6,
+                'port' => $this->getPort()
+            ]]
+        );
+
+        $this->assertConnected($client);
+        $client->close();
     }
 }

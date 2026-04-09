@@ -89,18 +89,18 @@ abstract class ValkeyGlideClusterBaseTest extends ValkeyGlideBaseTest
     ];
 
     protected static array $seeds = [];
-    private static array $seed_messages = [];
     private static string $seed_source = '';
-
-
-
-
 
     /* Load our seeds on construction */
     public function __construct($host, $port, $auth, $tls)
     {
         parent::__construct($host, $port, $auth, $tls);
         //self::$seeds = $this->loadSeeds($host, $port);TODO
+    }
+
+    public function getPort()
+    {
+        return $this->getTLS() ? self::TLS_PORT_CLUSTER : 7001;
     }
 
     /* Override setUp to get info from a specific node */
