@@ -970,16 +970,6 @@
    ...
 }
 
-# Process ping result
-{
-   process_ping_result_uninit_value8
-   Memcheck:Value8
-   ...
-   fun:process_ping_result
-   ...
-   obj:*/valkey_glide.so
-}
-
 # ============================================================================
 # TLS Handshake Syscall Suppressions
 # Uninitialized padding bytes in TLS ClientHello - protocol compliant
@@ -2077,5 +2067,506 @@
    Memcheck:Value8
    ...
    fun:*alloc*string*String*as*core*fmt*Write*write_char*
+   ...
+}
+
+# AWS SDK token bucket initialization (retry mechanism)
+# Safe to suppress: One-time initialization of retry token buckets per client type
+{
+   aws_sdk_token_bucket_default
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:*aws_smithy_runtime*client*retries*token_bucket*TokenBucket*default*
+   fun:*aws_smithy_runtime*static_partition_map*StaticPartitionMap*get_or_init*
+   fun:*aws_smithy_runtime*client*defaults*default_plugin*
+}
+
+# AWS SDK retry partition initialization
+# Safe to suppress: Static retry partition cloning during client initialization
+{
+   aws_sdk_retry_partition_clone
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:*aws_smithy_runtime*client*retries*RetryPartitionInner*clone*
+   fun:*aws_smithy_runtime*client*defaults*default_plugin*
+}
+
+# AWS SDK fastrand thread initialization
+# Safe to suppress: Thread-local storage for random number generation
+{
+   aws_sdk_fastrand_thread
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:*std*thread*thread*Thread*new*
+   fun:*std*thread*current*init_current*
+   fun:*fastrand*global_rng*random_seed*
+   fun:*aws_runtime*invocation_id*InvocationIdInterceptor*new*
+}
+
+# ============================================================================
+# Global Initialization Memory - "Possibly Lost" but Actually Reachable
+# These are one-time initializations that live for the program's lifetime
+# ============================================================================
+
+# AWS SDK STS Partition Resolver
+{
+   aws_sdk_sts_partition_resolver_init
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*aws_sdk_sts*endpoint_lib*partition*PartitionResolver*new_from_json*
+   ...
+}
+
+{
+   aws_sdk_sts_partition_resolver_hashmap
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*hashbrown*raw*RawTableInner*fallible_with_capacity*
+   ...
+   fun:*aws_sdk_sts*endpoint_lib*partition*PartitionResolver*new_from_json*
+   ...
+}
+
+# AWS-LC BigNum Montgomery multiplication - uninitialised value usage
+# Safe to suppress: Cryptographic operations intentionally use uninitialised memory
+# for constant-time operations and performance optimizations
+{
+   aws_lc_bn_mul4x_mont_uninit
+   Memcheck:Value8
+   fun:aws_lc_*_bn_mul4x_mont
+   ...
+}
+
+{
+   aws_lc_bn_mul4x_mont_cond
+   Memcheck:Cond
+   fun:aws_lc_*_bn_mul4x_mont
+   ...
+}
+
+# AWS-LC ML-KEM (Kyber) post-quantum crypto - uninitialised value usage
+# Safe to suppress: Post-quantum cryptographic operations use uninitialised memory
+# for rejection sampling and constant-time implementations
+{
+   aws_lc_mlkem_poly_rej_uniform_uninit
+   Memcheck:Value8
+   ...
+   fun:mlk_rej_uniform*
+   fun:mlkem_poly_rej_uniform_x4
+   ...
+}
+
+{
+   aws_lc_mlkem_poly_rej_uniform_cond
+   Memcheck:Cond
+   ...
+   fun:mlk_rej_uniform*
+   fun:mlkem_poly_rej_uniform_x4
+   ...
+}
+
+{
+   aws_lc_mlkem_gen_matrix_uninit
+   Memcheck:Cond
+   fun:mlkem_poly_rej_uniform_x4
+   fun:mlkem*_gen_matrix
+   ...
+}
+
+# AWS-LC random bytes generation - uninitialised value usage
+# Safe to suppress: Random number generation intentionally uses uninitialised memory
+# for entropy mixing and security purposes
+{
+   aws_lc_rand_bytes_private_uninit
+   Memcheck:Value8
+   fun:rand_bytes_private*
+   ...
+}
+
+{
+   aws_lc_rand_bytes_private_cond
+   Memcheck:Cond
+   ...
+   fun:rand_bytes_private*
+   ...
+}
+
+# AWS-LC RSA signature verification - uninitialised value usage
+# Safe to suppress: RSA PSS signature verification uses uninitialised memory
+# for constant-time operations and cryptographic optimizations
+{
+   aws_lc_rsa_verify_pkcs1_pss_uninit_value8
+   Memcheck:Value8
+   fun:aws_lc_*_RSA_verify_PKCS1_PSS_mgf1
+   fun:aws_lc_*_RSA_verify_pss_mgf1
+   fun:pkey_rsa_verify
+   fun:aws_lc_*_EVP_DigestVerifyFinal
+   fun:aws_lc_*_EVP_DigestVerify
+   ...
+}
+
+{
+   aws_lc_rsa_verify_pkcs1_pss_cond
+   Memcheck:Cond
+   fun:aws_lc_*_RSA_verify_PKCS1_PSS_mgf1
+   fun:aws_lc_*_RSA_verify_pss_mgf1
+   fun:pkey_rsa_verify
+   fun:aws_lc_*_EVP_DigestVerifyFinal
+   fun:aws_lc_*_EVP_DigestVerify
+   ...
+}
+
+# AWS-LC PKCS1 MGF1 mask generation function - uninitialised values
+# Safe to suppress: MGF1 uses uninitialised memory for cryptographic operations
+{
+   aws_lc_pkcs1_mgf1_uninit_value8
+   Memcheck:Value8
+   ...
+   fun:aws_lc_*_PKCS1_MGF1
+   fun:aws_lc_*_RSA_verify_PKCS1_PSS_mgf1
+   ...
+}
+
+{
+   aws_lc_pkcs1_mgf1_cond
+   Memcheck:Cond
+   ...
+   fun:aws_lc_*_PKCS1_MGF1
+   fun:aws_lc_*_RSA_verify_PKCS1_PSS_mgf1
+   ...
+}
+
+# Valgrind memmove with uninitialised values from AWS-LC crypto
+# Safe to suppress: memmove called by AWS-LC with intentional uninitialised data
+{
+   memmove_aws_lc_pkcs1_mgf1_value8
+   Memcheck:Value8
+   fun:memmove
+   fun:aws_lc_*_PKCS1_MGF1
+   fun:aws_lc_*_RSA_verify_PKCS1_PSS_mgf1
+   ...
+}
+
+{
+   memmove_aws_lc_pkcs1_mgf1_cond
+   Memcheck:Cond
+   fun:memmove
+   fun:aws_lc_*_PKCS1_MGF1
+   fun:aws_lc_*_RSA_verify_PKCS1_PSS_mgf1
+   ...
+}
+
+# AWS-LC RSA_size and OPENSSL_malloc with uninitialised values
+# Safe to suppress: RSA operations use uninitialised memory for constant-time operations
+{
+   aws_lc_rsa_size_cond
+   Memcheck:Cond
+   fun:aws_lc_*_RSA_size
+   fun:aws_lc_*_RSA_verify_PKCS1_PSS_mgf1
+   ...
+}
+
+{
+   aws_lc_openssl_malloc_cond
+   Memcheck:Cond
+   fun:aws_lc_*_OPENSSL_malloc
+   fun:aws_lc_*_RSA_verify_PKCS1_PSS_mgf1
+   ...
+}
+
+# RustLS TLS handshake with AWS-LC RSA verification
+# Safe to suppress: TLS certificate verification chain using RSA PSS
+{
+   rustls_tls13_rsa_verify_uninit
+   Memcheck:Cond
+   fun:aws_lc_*_RSA_verify_PKCS1_PSS_mgf1
+   ...
+   fun:*aws_lc_rs*rsa*signature*verify_rsa_signature*
+   fun:*aws_lc_rs*rsa*signature*RsaParameters*verify_sig*
+   fun:*webpki*signed_data*verify_signature*
+   fun:*webpki*end_entity*EndEntityCert*verify_signature*
+   fun:*rustls*webpki*verify*verify_tls13_signature*
+   ...
+}
+
+{
+   rustls_tls13_rsa_verify_value8
+   Memcheck:Value8
+   fun:aws_lc_*_RSA_verify_PKCS1_PSS_mgf1
+   ...
+   fun:*aws_lc_rs*rsa*signature*verify_rsa_signature*
+   fun:*aws_lc_rs*rsa*signature*RsaParameters*verify_sig*
+   fun:*webpki*signed_data*verify_signature*
+   fun:*webpki*end_entity*EndEntityCert*verify_signature*
+   fun:*rustls*webpki*verify*verify_tls13_signature*
+   ...
+}
+
+# RustLS client extensions encoding - uninitialised value from heap
+# Safe to suppress: TLS client hello extensions may use uninitialised padding
+{
+   rustls_client_extensions_uninit
+   Memcheck:Cond
+   ...
+   obj:*/valkey_glide.so
+   fun:*rustls*msgs*handshake*ClientExtensions*collect_used*
+   fun:*rustls*msgs*handshake*ClientExtensions*used_extensions_in_encoding_order*
+   fun:*rustls*msgs*handshake*ClientExtensions*encode*
+   ...
+}
+
+# AWS Smithy HTTP client connector - possibly lost during async operations
+# Safe to suppress: HTTP client connector memory managed by Rust runtime
+{
+   aws_smithy_http_connector_build
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*aws_smithy_http_client*client*ConnectorBuilder*build*
+   ...
+}
+
+{
+   aws_sdk_sts_regex_init
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*regex_lite*
+   ...
+   fun:*aws_sdk_sts*endpoint_lib*partition*PartitionResolver*new_from_json*
+   ...
+}
+
+# AWS Smithy Runtime Static Partition Map
+{
+   aws_smithy_static_partition_map
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*aws_smithy_runtime*static_partition_map*StaticPartitionMap*get_or_init*
+   ...
+}
+
+{
+   aws_smithy_default_plugins
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*aws_smithy_runtime*client*defaults*default_plugins*
+   ...
+}
+
+# Tokio Runtime Initialization
+{
+   tokio_runtime_builder_build
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:malloc
+   fun:posix_memalign
+   ...
+   fun:*tokio*runtime*builder*Builder*build*
+   ...
+}
+
+{
+   tokio_runtime_driver_new
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:malloc
+   ...
+   fun:*tokio*runtime*driver*Driver*new*
+   ...
+}
+
+{
+   tokio_signal_registry_init
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:malloc
+   ...
+   fun:*tokio*signal*registry*EventInfo*
+   ...
+}
+
+{
+   mio_events_with_capacity
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:malloc
+   ...
+   fun:*mio*event*events*Events*with_capacity*
+   ...
+}
+
+# OpenTelemetry Initialization
+{
+   opentelemetry_batch_span_processor
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:malloc
+   fun:posix_memalign
+   ...
+   fun:*opentelemetry_sdk*trace*span_processor*BatchSpanProcessor*new*
+   ...
+}
+
+{
+   opentelemetry_span_on_end
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:malloc
+   ...
+   fun:*opentelemetry_sdk*trace*span_processor*BatchSpanProcessor*on_end*
+   ...
+}
+
+{
+   tokio_mpsc_list_tx_find_block
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:malloc
+   ...
+   fun:*tokio*sync*mpsc*list*Tx*find_block*
+   ...
+}
+
+# Thread-Local Storage
+{
+   thread_local_dtv_allocation
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:malloc
+   ...
+   fun:allocate_dtv_entry
+   fun:allocate_and_init
+   fun:tls_get_addr_tail
+   ...
+}
+
+{
+   thread_start_tls
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:malloc
+   ...
+   fun:*std*sys*thread*unix*Thread*new*thread_start*
+   ...
+}
+
+# Rustls Native Certificates
+{
+   rustls_native_certs_load
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:calloc
+   ...
+   fun:*rustls_pki_types*pem*read*
+   ...
+   fun:*rustls_native_certs*load*
+   ...
+}
+
+{
+   rustls_native_certs_pem_from_buf
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:calloc
+   ...
+   fun:*rustls_pki_types*pem*from_buf_inner*
+   ...
+}
+
+{
+   rustls_client_config_init
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:calloc
+   fun:malloc
+   ...
+   fun:*aws_smithy_http_client*client*tls*rustls_provider*build_connector*create_rustls_client_config*
+   ...
+}
+
+# AWS-LC Error Handling
+{
+   aws_lc_err_put_error
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:calloc
+   ...
+   fun:*aws_lc*ERR_put_error*
+   ...
+}
+
+{
+   aws_lc_evp_parse_public_key
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:calloc
+   ...
+   fun:*aws_lc*EVP_parse_public_key*
+   ...
+}
+
+# AWS Config Loader
+{
+   aws_config_loader_init
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*aws_config*loader*ConfigLoader*load*
+   ...
+}
+
+{
+   aws_config_imds_client_build
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*aws_config*imds*client*Builder*build*
+   ...
+}
+
+{
+   aws_config_web_identity_token_build
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*aws_config*web_identity_token*Builder*build*
+   ...
+}
+
+# Regex Lite NFA Compiler
+{
+   regex_lite_nfa_compiler
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:malloc
+   ...
+   fun:*regex_lite*nfa*Compiler*
+   ...
+}
+
+{
+   regex_lite_regex_new
+   Memcheck:Leak
+   match-leak-kinds: possible,reachable
+   fun:malloc
+   ...
+   fun:*regex_lite*string*Regex*new*
    ...
 }
